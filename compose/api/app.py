@@ -1,59 +1,64 @@
-# flask_web/app.py
-
-#From flask import Flask
 import os
 from flask import jsonify, request, Flask
+from get_docker_secret import get_docker_secret
 
 import mysql.connector
 
 
 
 class DBManager:
-    def __init__(self, database='example', host="db", user="root", password_file=None):
-        pf = open(password_file, 'r')
+    def __init__(self, database='users', host="db", user="root"):
+        #pf = open(password_file, 'r')
+        db_secret = get_docker_secret('root-db-pw', default='test-secret')
         self.connection = mysql.connector.connect(
             user=user, 
-            password=pf.read(),
+            password=db_secret,
             host=host, # name of the mysql service as set in the docker-compose file
             database=database,
             auth_plugin='mysql_native_password'
         )
-        pf.close()
+        #pf.close()
         self.cursor = self.connection.cursor()
     
-    def populate_db(self):
-        self.cursor.execute('DROP TABLE IF EXISTS blog')
-        self.cursor.execute('CREATE TABLE blog (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255))')
-        self.cursor.executemany('INSERT INTO blog (id, title) VALUES (%s, %s);', [(i, 'Blog post #%d'% i) for i in range (1,5)])
+    def db_setup(self):
+        self.cursor.execute('DROP TABLE IF EXISTS users')
+        self.cursor.execute('CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255))')
+        #self.cursor.executemany('INSERT INTO users (id, name) VALUES (%s, %s);', [(i, 'user name #%d'% i) for i in range (1,5)])
         self.connection.commit()
     
-    def query_titles(self):
-        self.cursor.execute('SELECT title FROM blog')
+    def get_user(self):
+        self.cursor.execute('SELECT name FROM users WHERE id')
         rec = []
         for c in self.cursor:
             rec.append(c[0])
         return rec
 
-
-
-
-
-
-
-
-
+    def add_user(self, name):
+        self.cursor.execute('INSERT INTO users (name) VALUES (%s);', name)
+        self.connection.commit()
 
 
 app = Flask(__name__)
 
-@app.route('/users',methods = ['POST', 'GET'])
-def users():
-   if request.method == 'POST':
-      user = request.form['nm']
-      return 'create user'
-   else:
-      user = request.args.get('nm')
-      return 'get user'
+@app.route('/users',methods = ['POST'])
+def users(name):
+    if request.method == 'POST':
+        user = request.form['nm']
+        global conn
+        if not conn:
+            conn = DBManager()
+            conn.add_user(name)
+        return 'create user'
+
+
+@app.route('/users',methods = ['GET'])
+def users(id):
+    global conn
+    if not conn:
+        conn = DBManager()
+        conn.get_user()
+    user = request.args.get('nm')
+     return 'get user'
 
 
 @app.route('/users/<transaction_id>')
