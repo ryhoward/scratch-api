@@ -6,8 +6,13 @@ services:
     #  - root-db-pw
     depends_on:
         - db
+    ports:
+        - 5000:5000
+    networks:
+      - backnet
+      - frontnet
     environment:
-      - MYSQL_ROOT_PASSWORD=${root-db-pw}
+      - MYSQL_ROOT_PASSWORD=${root_db_pw}
 
                     #condition: service_healthy
   db:
@@ -21,22 +26,28 @@ services:
       start_period: 30s
       #secrets:
       #- root-db-pw
-    volumes:
-      - db-data:/var/lib/mysql
+      #volumes:
+            #  - db-data:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=flask_users
+      - MYSQL_DATABASE=users
         #- MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root-db-pw
-      - MYSQL_ROOT_PASSWORD=${root-db-pw}
+      - MYSQL_ROOT_PASSWORD=db-78n9n
     expose:
       - 3306
+      - 33060
         #  proxy:
         # build: proxy
         #ports:
         # - 80:80
         #depends_on: 
         #- backend
+    networks:
+      - backnet
 volumes:
   db-data:
-          #secrets: root-db-pw
+          #secrets: root_db_pw
     #root-db-pw: 
           # external: true
+networks:
+  backnet:
+  frontnet:

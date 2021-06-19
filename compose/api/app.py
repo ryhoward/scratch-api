@@ -9,12 +9,13 @@ import mysql.connector
 class DBManager:
     def __init__(self, database='users', host="db", user="root", password_path=None):
         #pw_path = open(password_file, 'r')
-        #db_secret = get_docker_secret('root-db-pw', default='test-secret')
-        db_secret = os.getenv('root-db-pw') 
+        #db_secret = get_docker_secret('root_db_pw', default='test-secret')
+        db_secret = os.getenv('MYSQL_ROOT_PASSWORD') 
         self.connection = mysql.connector.connect(
             user=user, 
             #password=pw_path.read(),
-            #password
+            #password=db_secret,
+            password="db-78n9n",
             host=host, # name of the mysql service as set in the docker-compose file
             database=database,
             auth_plugin='mysql_native_password'
@@ -27,7 +28,14 @@ class DBManager:
         self.cursor.execute('CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255))')
         #self.cursor.executemany('INSERT INTO users (id, name) VALUES (%s, %s);', [(i, 'user name #%d'% i) for i in range (1,5)])
         self.connection.commit()
-    
+
+    def get_users(self):
+        self.cursor.execute('SELECT name FROM users')
+        items = []
+        for d in self.cursor:
+            items.append(d[0])
+        return items
+
     def get_user(self, id):
         self.cursor.execute('SELECT name FROM users WHERE id = %s', id)
         rec = []
@@ -41,38 +49,37 @@ class DBManager:
 
 
 app = Flask(__name__)
+conn = None
 
-@app.route('/users',methods = ['POST'])
-def users(name):
-    if request.method == 'POST':
-        user = request.form['nm']
+
+@app.route('/users/<name>',methods = ['POST', 'GET'])
+def users(name='default'):
         global conn
         if not conn:
-            conn = DBManager()
+            conn = db_connection()#DBManager()
+        
+        if request.method == 'POST':
             conn.add_user(name)
-        return 'create user'
-
-
-@app.route('/users',methods = ['GET'])
-def users(id):
-    #global conn
-    #if not conn:
-    #    conn = DBManager()
-    conn = db_connection()
-    user = conn.get_user()
-   # user = request.args.get('nm')
-    return user
-
+            return 'user created'
+        else:
+            rec = conn.get_users()
+            response = ''
+            for c in rec:
+                response = response  + '<div>   Hello  ' + c + '</div>'
+            return response
+            return users
+            #return 'GET users'
 
 @app.route('/users/<transaction_id>')
-def users_id():
+def users_id(transaction_id):
     return 'get user by id {}'.format(transaction_id)
 
 
 def db_connection():
     global conn
     if not conn:
-        conn = DBManager(password_path='/run/secrets/root-db-pw')
+        conn = DBManager()#password_path='/run/secrets/root-db-pw')
+        conn.db_setup()
         return conn
 
 #@app.route('/')
@@ -82,4 +89,3 @@ def db_connection():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-    
