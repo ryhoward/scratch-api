@@ -2,13 +2,16 @@ version: "3.7"
 services:
   backend:
     build: api
-    secrets:
-      - root-db-pw
+    #secrets:
+    #  - root-db-pw
     depends_on:
-      db:
-        condition: service_healthy
+        - db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${root-db-pw}
+
+                    #condition: service_healthy
   db:
-    image: mysql:8.0.25i
+    image: mysql:8.0.25
     command: '--default-authentication-plugin=mysql_native_password'
     restart: always
     healthcheck:
@@ -16,23 +19,24 @@ services:
       interval: 3s
       retries: 5
       start_period: 30s
-    secrets:
-      - db-password
+      #secrets:
+      #- root-db-pw
     volumes:
       - db-data:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=flask_users
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root-db-pw
+        #- MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root-db-pw
+      - MYSQL_ROOT_PASSWORD=${root-db-pw}
     expose:
       - 3306
-  proxy:
-    build: proxy
-    ports:
-      - 80:80
-    depends_on: 
-      - backend
+        #  proxy:
+        # build: proxy
+        #ports:
+        # - 80:80
+        #depends_on: 
+        #- backend
 volumes:
   db-data:
-secrets:
-  root-db-pw:
-          external: true
+          #secrets: root-db-pw
+    #root-db-pw: 
+          # external: true
