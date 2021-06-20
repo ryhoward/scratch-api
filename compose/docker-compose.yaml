@@ -2,8 +2,6 @@ version: "3.7"
 services:
   backend:
     build: api
-    #secrets:
-    #  - root-db-pw
     depends_on:
         - db
     ports:
@@ -13,8 +11,6 @@ services:
       - frontnet
     environment:
       - MYSQL_ROOT_PASSWORD=${root_db_pw}
-
-                    #condition: service_healthy
   db:
     image: mysql:8.0.25
     command: '--default-authentication-plugin=mysql_native_password'
@@ -24,23 +20,12 @@ services:
       interval: 3s
       retries: 5
       start_period: 30s
-      #secrets:
-      #- root-db-pw
-      #volumes:
-            #  - db-data:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=users
-        #- MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root-db-pw
       - MYSQL_ROOT_PASSWORD=db-78n9n
     expose:
       - 3306
-      - 33060
-        #  proxy:
-        # build: proxy
-        #ports:
-        # - 80:80
-        #depends_on: 
-        #- backend
+        # - 33060
     networks:
       - backnet
 volumes:

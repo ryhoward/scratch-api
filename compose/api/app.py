@@ -9,16 +9,11 @@ import mysql.connector
 
 
 class DBManager:
-    def __init__(self, database='users', host="164.90.253.239", user="root", password_path=None):
-        #pw_path = open(password_file, 'r')
-        #db_secret = get_docker_secret('root_db_pw', default='test-secret')
-        db_secret = os.getenv('MYSQL_ROOT_PASSWORD') 
+    def __init__(self, database='users', host="143.244.212.224", user="root", password_path=None):
         self.connection = mysql.connector.connect(
             user=user, 
-            #password=pw_path.read(),
-            #password=db_secret,
-            password="db-78n9n",
-            host=host, # name of the mysql service as set in the docker-compose file
+            password=os.environ['MYSQL_ROOT_PASSWORD']
+            host=host,
             database=database,
             auth_plugin='mysql_native_password'
         )
@@ -28,16 +23,11 @@ class DBManager:
     def db_setup(self):
         self.cursor.execute('DROP TABLE IF EXISTS users')
         self.cursor.execute('CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255))')
-        #self.cursor.executemany('INSERT INTO users (id, name) VALUES (%s, %s);', [(i, 'user name #%d'% i) for i in range (1,5)])
         self.connection.commit()
 
     def get_users(self):
         self.cursor.execute('SELECT id, name FROM users')
         return self.cursor.fetchall()
-        #items = []
-        #for d in self.cursor:
-        #    items.append(d[0])
-        #return items
 
     def get_user(self, id):
         self.cursor.execute('SELECT name FROM users WHERE id = {0}'.format(id))
@@ -50,7 +40,6 @@ class DBManager:
         val=(name,)
         query="""INSERT INTO users (name) VALUES (%s)"""
         self.cursor.execute(query, val)
-
         self.connection.commit()
 
 
@@ -66,8 +55,8 @@ def users(name='default'):
        
         if request.method == 'POST':
             
-            if request.is_json:
-                content = request.get_json()
+            if ((request.is_json) and (request.headers['Content-Type'] == 'application/json')):
+                #content = request.get_json()
                 #to_json = json.dumps(content)
                 #name = content[1]
 
@@ -79,7 +68,8 @@ def users(name='default'):
                 #name = content.get("name")
                 #name = content["name"]
                 conn.add_user("ryan")
-                return 'user created'
+                #return 'user created'
+                return "JSON Message: " + request.json
             return 'request not in json format'
         else:
             rec = conn.get_users()
@@ -102,15 +92,9 @@ def users_id(transaction_id):
 def db_connection():
     global conn
     if not conn:
-        conn = DBManager()#password_path='/run/secrets/root-db-pw')
+        conn = DBManager()
         conn.db_setup()
         return conn
 
-#@app.route('/')
-#def hello_world():
-#    return 'Hey, we have Flask in a Docker container!'
-
-
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-    app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
