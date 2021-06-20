@@ -1,9 +1,10 @@
 import os
+import sys
+import logging
 from flask import jsonify, request, Flask
 #from get_docker_secret import get_docker_secret
 
 import mysql.connector
-
 
 
 class DBManager:
@@ -30,21 +31,25 @@ class DBManager:
         self.connection.commit()
 
     def get_users(self):
-        self.cursor.execute('SELECT name FROM users')
-        items = []
-        for d in self.cursor:
-            items.append(d[0])
-        return items
+        self.cursor.execute('SELECT id, name FROM users')
+        return self.cursor.fetchall()
+        #items = []
+        #for d in self.cursor:
+        #    items.append(d[0])
+        #return items
 
     def get_user(self, id):
-        self.cursor.execute('SELECT name FROM users WHERE id = %s', id)
+        self.cursor.execute('SELECT name FROM users WHERE id = {0}'.format(id))
         rec = []
         for c in self.cursor:
             rec.append(c[0])
         return rec
 
     def add_user(self, name):
-        self.cursor.execute('INSERT INTO users (name) VALUES (%s);', name)
+        val=(name,)
+        query="""INSERT INTO users (name) VALUES (%s)"""
+        self.cursor.execute(query, val)
+
         self.connection.commit()
 
 
@@ -56,8 +61,8 @@ conn = None
 def users(name='default'):
         global conn
         if not conn:
-            conn = db_connection()#DBManager()
-        
+            conn = db_connection()
+       
         if request.method == 'POST':
             conn.add_user(name)
             return 'user created'
@@ -65,9 +70,9 @@ def users(name='default'):
             rec = conn.get_users()
             response = ''
             for c in rec:
-                response = response  + '<div>   Hello  ' + c + '</div>'
+                response = response  + 'user:{0}, '.format(c)
             return response
-            return users
+            #return users
             #return 'GET users'
 
 @app.route('/users/<transaction_id>')
