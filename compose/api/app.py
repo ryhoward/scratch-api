@@ -9,7 +9,7 @@ import mysql.connector
 
 
 class DBManager:
-    def __init__(self, database='users', host="db", user="root", password_path=None):
+    def __init__(self, database='users', host="164.90.253.239", user="root", password_path=None):
         #pw_path = open(password_file, 'r')
         #db_secret = get_docker_secret('root_db_pw', default='test-secret')
         db_secret = os.getenv('MYSQL_ROOT_PASSWORD') 

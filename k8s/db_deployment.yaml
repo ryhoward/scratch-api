@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-db-deployment
+spec:
+  selector:
+    matchLabels:
+      app: users-db
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: users-db
+    spec:
+      containers:
+      - name: users-db
+        image: mysql:5.6
+        ports:
+        - containerPort: 33060
+        env:
+         - name: MYSQL_ROOT_PASSWORD
+           valueFrom:
+                secretKeyRef:
+                        name: root-db-pw
+                        key: root-pw
+         - name: MYSQL_DATABASE
+           value: "users"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-db
+  labels:
+    app: users-db
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    name: mysql
+  selector:
+    app: users-db
+  type: LoadBalancer
