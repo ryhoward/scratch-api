@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import logging
 from flask import jsonify, request, Flask
 #from get_docker_secret import get_docker_secret
@@ -57,28 +58,46 @@ app = Flask(__name__)
 conn = None
 
 
-@app.route('/users/<name>',methods = ['POST', 'GET'])
+@app.route('/users',methods = ['POST', 'GET'])
 def users(name='default'):
         global conn
         if not conn:
             conn = db_connection()
        
         if request.method == 'POST':
-            conn.add_user(name)
-            return 'user created'
+            
+            if request.is_json:
+                content = request.get_json()
+                #to_json = json.dumps(content)
+                #name = content[1]
+
+                #myanswer = []
+                #for tup1 in range(len(content)):
+                #     myanswer.append(tup1)
+                #return (myanswer)
+               #name = to_json["name"]
+                #name = content.get("name")
+                #name = content["name"]
+                conn.add_user("ryan")
+                return 'user created'
+            return 'request not in json format'
         else:
             rec = conn.get_users()
             response = ''
             for c in rec:
                 response = response  + 'user:{0}, '.format(c)
             return response
-            #return users
-            #return 'GET users'
 
 @app.route('/users/<transaction_id>')
 def users_id(transaction_id):
-    return 'get user by id {}'.format(transaction_id)
-
+    global conn
+    if not conn:
+        conn = db_connection()
+    rec = conn.get_user(transaction_id)
+    response = ''
+    for i in rec:
+        response = response + 'user:{0}, '.format(i)
+    return response
 
 def db_connection():
     global conn
@@ -94,3 +113,4 @@ def db_connection():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+    app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
