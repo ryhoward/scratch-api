@@ -3,15 +3,19 @@ import requests
 from csv import reader
 
 users={}
+api_endpoint='http://164.90.253.239:5000/users/'
 
 def get_user(id)
-    url = 'http://164.90.253.239:5000/users/' + id
+    url = api_endpoint + id
     r = requests.get(url)
     if r.status_code == 200:
         return r.content
+    elif:
+        print ('user not found for user by id:' + id)
+        sys.exit(os.EX_SOFTWARE)
 
 def publish_data(name):
-    url = 'http://164.90.253.239:5000/users'
+    url = api_endpoint + 'users'
     payload = '{"user":"ryan_howard"}'#open("request.json")
     headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
     r = requests.post(url, data=payload, headers=headers)
@@ -37,10 +41,12 @@ def find_users():
         print('user not found for: ' + key)
         sys.exit(os.EX_SOFTWARE)
 
+def compare_all_users():
+    url = api_endpoint
 
 
 test_data = sys.argv[1]
 get_data(test_data)
-results = find_users()
-
+find_users()
+compare_all_users()
 

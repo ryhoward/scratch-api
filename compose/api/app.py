@@ -9,10 +9,13 @@ import mysql.connector
 
 
 class DBManager:
+    ####
+    ####
+    ####
     def __init__(self, database='users', host="143.244.212.224", user="root", password_path=None):
         self.connection = mysql.connector.connect(
             user=user, 
-            password=os.environ['MYSQL_ROOT_PASSWORD']
+            password=os.environ['MYSQL_ROOT_PASSWORD'],
             host=host,
             database=database,
             auth_plugin='mysql_native_password'
@@ -52,22 +55,27 @@ def users(name='default'):
         global conn
         if not conn:
             conn = db_connection()
-       
-        if request.method == 'POST':
-            
+        if request.method == 'POST':            
             if ((request.is_json) and (request.headers['Content-Type'] == 'application/json')):
-                #content = request.get_json()
+                #username = request.json.get('user', None)
+                #return username
+                content = request.get_json(force=True)
+                s = "Tuple: {}".format(content[...])
+                return s
                 #to_json = json.dumps(content)
+                #tupper = ''.join(stuff)
+                #return tupper
+
                 #name = content[1]
 
                 #myanswer = []
                 #for tup1 in range(len(content)):
                 #     myanswer.append(tup1)
                 #return (myanswer)
-               #name = to_json["name"]
+                #name = to_json["user"]
                 #name = content.get("name")
                 #name = content["name"]
-                conn.add_user("ryan")
+                conn.add_user(name)
                 #return 'user created'
                 return "JSON Message: " + request.json
             return 'request not in json format'

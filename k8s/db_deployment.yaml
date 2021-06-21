@@ -42,4 +42,4 @@ spec:
     name: mysql
   selector:
     app: users-db
-  type: LoadBalancer
+    #  type: LoadBalancer
