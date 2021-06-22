@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import logging
-from flask import jsonify, request, Flask
+from flask import jsonify, request, Flask, Response
 #from get_docker_secret import get_docker_secret
 
 import mysql.connector
@@ -12,7 +12,7 @@ class DBManager:
     ####
     ####
     ####
-    def __init__(self, database='users', host="143.244.212.224", user="root", password_path=None):
+    def __init__(self, database='users', host="users-db", user="root", password_path=None):
         self.connection = mysql.connector.connect(
             user=user, 
             password=os.environ['MYSQL_ROOT_PASSWORD'],
@@ -59,9 +59,13 @@ def users(name='default'):
             if ((request.is_json) and (request.headers['Content-Type'] == 'application/json')):
                 #username = request.json.get('user', None)
                 #return username
-                content = request.get_json(force=True)
-                s = "Tuple: {}".format(content[...])
-                return s
+                
+
+                #content = request.get_json(force=True)
+                #s = "Tuple: {}".format(content[...])
+                #return s
+                
+
                 #to_json = json.dumps(content)
                 #tupper = ''.join(stuff)
                 #return tupper
@@ -75,16 +79,24 @@ def users(name='default'):
                 #name = to_json["user"]
                 #name = content.get("name")
                 #name = content["name"]
-                conn.add_user(name)
-                #return 'user created'
-                return "JSON Message: " + request.json
+                conn.add_user('ryan_user')
+                return 'user created'
+                #return "JSON Message: " + request.json
             return 'request not in json format'
         else:
             rec = conn.get_users()
             response = ''
-            for c in rec:
-                response = response  + 'user:{0}, '.format(c)
-            return response
+            users=[]
+            for row in rec:
+                #response = response  + 'user:{0}, '.format(c)
+                #users.update({c[0], c[1]})
+                #users.update({'{}'.format(row[0]), '{}'.format(row[1]) })
+                users.append('{}'.format(row))
+                #return str(row[0])
+                #users.update(c)
+            #return response
+            #return jsonify(users)
+            return Response(json.dumps(users),  mimetype='application/json')
 
 @app.route('/users/<transaction_id>')
 def users_id(transaction_id):
