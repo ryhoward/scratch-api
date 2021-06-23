@@ -3,15 +3,9 @@ import sys
 import json
 import logging
 from flask import jsonify, request, Flask, Response
-#from get_docker_secret import get_docker_secret
-
 import mysql.connector
 
-
 class DBManager:
-    ####
-    ####
-    ####
     def __init__(self, database='users', host="users-db", user="root", password_path=None):
         self.connection = mysql.connector.connect(
             user=user, 
@@ -20,18 +14,20 @@ class DBManager:
             database=database,
             auth_plugin='mysql_native_password'
         )
-        #pf.close()
         self.cursor = self.connection.cursor()
-    
+   
+    ### Initial db setup and adding of users table
     def db_setup(self):
         self.cursor.execute('DROP TABLE IF EXISTS users')
         self.cursor.execute('CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255))')
         self.connection.commit()
 
+    ### Get all Users in users table
     def get_users(self):
         self.cursor.execute('SELECT id, name FROM users')
         return self.cursor.fetchall()
 
+    ### get single user by provided id
     def get_user(self, id):
         self.cursor.execute('SELECT name FROM users WHERE id = {0}'.format(id))
         rec = []
@@ -39,6 +35,7 @@ class DBManager:
             rec.append(c[0])
         return rec
 
+    ### add single user with provided username string
     def add_user(self, name):
         val=(name,)
         query="""INSERT INTO users (name) VALUES (%s)"""
@@ -49,7 +46,7 @@ class DBManager:
 app = Flask(__name__)
 conn = None
 
-
+### Get either all users or post to create new user
 @app.route('/users',methods = ['POST', 'GET'])
 def users(name='default'):
         global conn
@@ -57,53 +54,27 @@ def users(name='default'):
             conn = db_connection()
         if request.method == 'POST':            
             if ((request.is_json) and (request.headers['Content-Type'] == 'application/json')):
-                #username = request.json.get('user', None)
-                #return username
-                
-
-                #content = request.get_json(force=True)
-                #s = "Tuple: {}".format(content[...])
-                #return s
-                
-
-                #to_json = json.dumps(content)
-                #tupper = ''.join(stuff)
-                #return tupper
-
-                #name = content[1]
-
-                #myanswer = []
-                #for tup1 in range(len(content)):
-                #     myanswer.append(tup1)
-                #return (myanswer)
-                #name = to_json["user"]
-                #name = content.get("name")
-                #name = content["name"]
-                conn.add_user('ryan_user')
+                username = request.json.get('user', None)
+                json_username = json.dumps(username)
+                conn.add_user(json_username)
                 return 'user created'
-                #return "JSON Message: " + request.json
-            return 'request not in json format'
+            return 'request not in correct json format'
         else:
             rec = conn.get_users()
             response = ''
             users=[]
             for row in rec:
+            ### this is never how you want to do this, it shouldn't be a string, but rather a dictionary preferably. I had some issues with pythons/flasks strange transtion and conversion of dictionaries/lists to json.
                 response = response  + '{0}, '.format(row)
-                #users.update({c[0], c[1]})
-                #users.update({'{}'.format(row[0]), '{}'.format(row[1]) })
-                #users.append('{}'.format(row))
-                #return str(row[0])
-                #users.update(c)
             return response
-            #return jsonify(users)
-            #return Response(json.dumps(users),  mimetype='application/json')
 
-@app.route('/users/<transaction_id>')
-def users_id(transaction_id):
+### Get any user by id
+@app.route('/users/<user_id>')
+def users_id(user_id):
     global conn
     if not conn:
         conn = db_connection()
-    rec = conn.get_user(transaction_id)
+    rec = conn.get_user(user_id)
     response = ''
     for i in rec:
         response = response + 'user:{0}, '.format(i)

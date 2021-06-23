@@ -55,17 +55,11 @@ def compare_all_users():
         print(item[0])
         print(item[1])
         print(users[str(item[0])])
-        #if ( users[item[0]) != item[1] )
-    #print(data)
-    #pairs={}
-    #for i in data:
-    #    print(i)
-        
-       # pairs.update({})
 
 test_data = sys.argv[1]
 get_data(test_data)
 find_users()
+### This is where my slight inexperience with python flask requests and converting tuples with "ellipses". Had trouble completing this in the time frame. Leaving incomplete.
 #compare_all_users()
 print("tests completed successfully")
 sys.exit()
