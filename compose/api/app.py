@@ -64,7 +64,7 @@ def users(name='default'):
             response = ''
             users=[]
             for row in rec:
-            ### this is never how you want to do this, it shouldn't be a string, but rather a dictionary preferably. I had some issues with pythons/flasks strange transtion and conversion of dictionaries/lists to json.
+            ### this is never how you want to do this, it shouldn't be a string, but rather a dictionary preferably. I had some issues with pythons/flasks strange translation and conversion of dictionaries/lists to json.
                 response = response  + '{0}, '.format(row)
             return response
 

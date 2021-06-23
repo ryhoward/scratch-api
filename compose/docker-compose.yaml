@@ -25,14 +25,10 @@ services:
       - MYSQL_ROOT_PASSWORD=db-78n9n
     expose:
       - 3306
-        # - 33060
     networks:
       - backnet
 volumes:
   db-data:
-          #secrets: root_db_pw
-    #root-db-pw: 
-          # external: true
 networks:
   backnet:
   frontnet:
