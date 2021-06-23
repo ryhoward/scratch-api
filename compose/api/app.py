@@ -88,15 +88,15 @@ def users(name='default'):
             response = ''
             users=[]
             for row in rec:
-                #response = response  + 'user:{0}, '.format(c)
+                response = response  + '{0}, '.format(row)
                 #users.update({c[0], c[1]})
                 #users.update({'{}'.format(row[0]), '{}'.format(row[1]) })
-                users.append('{}'.format(row))
+                #users.append('{}'.format(row))
                 #return str(row[0])
                 #users.update(c)
-            #return response
+            return response
             #return jsonify(users)
-            return Response(json.dumps(users),  mimetype='application/json')
+            #return Response(json.dumps(users),  mimetype='application/json')
 
 @app.route('/users/<transaction_id>')
 def users_id(transaction_id):

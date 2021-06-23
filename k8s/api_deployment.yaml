@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: users-api
-        image: ryhoward/api:35
+        image: ryhoward/api:37
         ports:
         - containerPort: 5000
         env:

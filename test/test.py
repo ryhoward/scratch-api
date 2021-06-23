@@ -19,7 +19,7 @@ def publish_data(name):
     payload = '{"user":"ryan_howard"}'#open("request.json")
     headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
     r = requests.post(url, data=payload, headers=headers)
-    print(r)
+    #print(r)
 
 def get_data(data):
     if data is not None:
@@ -27,8 +27,7 @@ def get_data(data):
             test_data_reader = reader(read_obj)
             iteration=0
             for row in test_data_reader:
-                #print(row[1])
-                print(row)
+                #print(row)
                 if (iteration == 0):
                     continue
                 publish_data(row[1])
@@ -45,15 +44,28 @@ def compare_all_users():
     url = api_endpoint
     r = requests.get(url)
     #print(r.text)
-    data = r.json()
-    pairs={}
-    for i in data:
-        print(i)
+    data = r.content
+    revised = data.replace(b" ", b"").replace(b"),", b")^").replace(b"(", b"").replace(b")", b"")
+    other = revised.split(b"^")
+    for i in other:
+        #print(i)
+        item = i.split(b",")
+        if not item[0]:
+            continue
+        print(item[0])
+        print(item[1])
+        print(users[str(item[0])])
+        #if ( users[item[0]) != item[1] )
+    #print(data)
+    #pairs={}
+    #for i in data:
+    #    print(i)
         
-        pairs.update({})
+       # pairs.update({})
 
 test_data = sys.argv[1]
 get_data(test_data)
-#find_users()
-compare_all_users()
-
+find_users()
+#compare_all_users()
+print("tests completed successfully")
+sys.exit()
