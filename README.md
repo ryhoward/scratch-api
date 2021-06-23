@@ -8,5 +8,6 @@ I'm most comfortable building bigger systems, such as APIs, in compiled langauge
 The project is made up of 3 main components:
 
 * compose: The api and db portions were originally scripting out in docker compose, and the tweaked to work independently and become deployable to kubernetes.
-* test: A simple test.py script that accepts the data.csv input. It expects the input format to always match the data.csv example input format: $ python3 test.py data.csv
+* test: A simple test.py script that accepts the data.csv input. It expects the input format to always match the data.csv example input format: 
+   $ python3 test.py data.csv
 * k8s: Basic kubernetes manifest files to deploy the built dockerhub images to an existing kubernetes cluster.
