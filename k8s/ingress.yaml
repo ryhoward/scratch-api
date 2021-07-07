@@ -1,22 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: "scratch-ingress"
+  name: scratch-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: scratch.internal-dns.io
+  - host: "hw1.your_domain_name"
     http:
       paths:
-      - path: /*
+      - pathType: Prefix
+        path: "/"
         backend:
-          serviceName: user-api
-          servicePort: 5000
-
-tls:
-- secretName: scratch-tls-cert
-    hosts:
-    - scratch.internal-dns.io
+          service:
+            name: users-api
+            port:
+              number: 80
